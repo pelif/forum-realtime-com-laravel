@@ -1,0 +1,45 @@
+ version: '2'
+ services: 
+
+  #The database
+   image: mysql:5.7
+   volumes: 
+     - dbdata:/var/lib/mysql
+   environment: 
+     - "MYSQL_DATABASE=homestead"  
+     - "MYSQL_USER=homestead"
+     - "MYSQL_PASSWORD=secret"
+     - "MYSQL_ROOT_PASSWORD=secret"
+     - "MYSQL_PORT=3306"
+   ports:
+     - 3306:3306
+
+  #The app
+   app:
+     image: jakelima18/laravelapp
+     working_dir: /var/www
+     volumes: 
+       - /var/www/storage
+     env_file: '.env'
+     environment: 
+       - "DB_HOST=database"
+       - "DB_PORT=3306"
+       - "REDIS_HOST=cache"
+     links: 
+       - database
+     depends_on:
+       - database
+
+  #webserver
+   web:
+     image: jakelima18/laravel-web
+     ports: 
+       - 80:80
+     links: 
+       - app      
+
+  #REDIS
+   cache:        
+     image: redis3.0-alpine
+     volumes:
+       dbdata:
